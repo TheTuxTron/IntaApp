@@ -1,8 +1,25 @@
+const bcrypt = require('bcrypt');
 const Cliente = require('../models/Cliente');
 
 exports.createCliente = async (req, res) => {
   try {
-    const newCliente = await Cliente.create(req.body);
+    const { id_barrio, cedula, nombre, apellido, direccion, telefono, email, username, password } = req.body;
+    
+    // Encriptar la contraseña antes de guardarla
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newCliente = await Cliente.create({
+      id_barrio,
+      cedula,
+      nombre,
+      apellido,
+      direccion,
+      telefono,
+      email,
+      username,
+      password: hashedPassword
+    });
+
     res.status(201).json(newCliente);
   } catch (error) {
     res.status(500).json({ error: error.message });

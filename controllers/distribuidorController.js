@@ -1,8 +1,10 @@
+const bcrypt = require('bcrypt');
 const Distribuidor = require('../models/Distribuidor');
 
 exports.createDistribuidor = async (req, res) => {
   try {
     const newDistribuidor = await Distribuidor.create(req.body);
+
     res.status(201).json(newDistribuidor);
   } catch (error) {
     res.status(500).json({ error: error.message });

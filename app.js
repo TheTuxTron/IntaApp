@@ -1,7 +1,6 @@
 // app.js
 const express = require('express');
-const app = express();
-
+const cors = require('cors');
 
 // Importar las rutas
 const adminRoutes = require('./routes/adminRoutes');
@@ -20,31 +19,67 @@ const pedidoRoutes = require('./routes/pedidoRoutes');
 const presentacionRoutes = require('./routes/presentacionRoutes');
 const productoRoutes = require('./routes/productoRoutes');
 const rutaRoutes = require('./routes/rutaRoutes');
+const authRoutes = require('./routes/authRoutes');
 
+class Server {
+  constructor() {
+    this.app = express();
+    this.port = process.env.PORT || 3000;
 
-app.use(express.json());
+    this.middlewares();
+    this.routes();
+  }
 
-// Usar las rutas
-app.use('/admin', adminRoutes);
-app.use('/analisisdatos', analisisdatosRoutes);
-app.use('/barrio', barrioRoutes);
-app.use('/cliente', clienteRoutes);
-app.use('/detalle-pedido', detallePedidoRoutes);
-app.use('/distribuidor', distribuidorRoutes);
-app.use('/estado-pedido', estadoPedidoRoutes);
-app.use('/estado-solicitud', estadoSolicitudRoutes);
-app.use('/factura', facturaRoutes);
-app.use('/metodo-pago-efectivo', metodoPagoEfectivoRoutes);
-app.use('/metodo-pago-paypal', metodoPagoPaypalRoutes);
-app.use('/parroquia', parroquiaRoutes);
-app.use('/pedido', pedidoRoutes);
-app.use('/presentacion', presentacionRoutes);
-app.use('/producto', productoRoutes);
-app.use('/ruta', rutaRoutes);
+  middlewares() {
+    this.app.use(express.json());
+    this.app.use(cors({
+      origin: function (origin, callback) {
+        const allowedOrigins = [
+          'http://localhost:4200', 
+          // Agregar otros orígenes permitidos aquí
+        ];
 
-// Añadir otras rutas...
+        // Permitir solicitudes sin un origen (como las realizadas desde herramientas de pruebas)
+        if (!origin) return callback(null, true);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
-});
+        if (allowedOrigins.indexOf(origin) !== -1) {
+          // Si el origen está en la lista de permitidos
+          callback(null, true);
+        } else {
+          // Si el origen no está en la lista de permitidos
+          callback(new Error('No permitido por CORS'));
+        }
+      }
+    }));
+  }
+
+  routes() {
+    this.app.use('/api/admin', adminRoutes);
+    this.app.use('/api/analisisdatos', analisisdatosRoutes);
+    this.app.use('/api/barrio', barrioRoutes);
+    this.app.use('/api/cliente', clienteRoutes);
+    this.app.use('/api/detalle-pedido', detallePedidoRoutes);
+    this.app.use('/api/distribuidor', distribuidorRoutes);
+    this.app.use('/api/estado-pedido', estadoPedidoRoutes);
+    this.app.use('/api/estado-solicitud', estadoSolicitudRoutes);
+    this.app.use('/api/factura', facturaRoutes);
+    this.app.use('/api/metodo-pago-efectivo', metodoPagoEfectivoRoutes);
+    this.app.use('/api/metodo-pago-paypal', metodoPagoPaypalRoutes);
+    this.app.use('/api/parroquia', parroquiaRoutes);
+    this.app.use('/api/pedido', pedidoRoutes);
+    this.app.use('/api/presentacion', presentacionRoutes);
+    this.app.use('/api/producto', productoRoutes);
+    this.app.use('/api/ruta', rutaRoutes);
+    this.app.use('/api/auth', authRoutes);
+    // Añadir otras rutas...
+  }
+
+  listen() {
+    this.app.listen(this.port, () => {
+      console.log(`Servidor corriendo en el puerto ${this.port}`);
+    });
+  }
+}
+
+const server = new Server();
+server.listen();

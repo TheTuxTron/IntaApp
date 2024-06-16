@@ -25,6 +25,11 @@ const Distribuidor = sequelize.define('Distribuidor', {
       key: 'id_estadosolicitud'
     }
   },
+  cedula: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
+  },
   nombre: {
     type: DataTypes.STRING,
     allowNull: true
@@ -54,7 +59,7 @@ const Distribuidor = sequelize.define('Distribuidor', {
     allowNull: true
   },
   password: {
-    type: DataTypes.STRING,
+    type:  DataTypes.STRING,
     allowNull: true
   }
 }, {

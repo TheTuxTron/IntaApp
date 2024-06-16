@@ -16,6 +16,11 @@ const Cliente = sequelize.define('Cliente', {
       key: 'id_barrio'
     }
   },
+  cedula: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
+  },
   nombre: {
     type: DataTypes.STRING,
     allowNull: true
