@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const Distribuidor = require('../models/Distribuidor');
+const sendEmail = require('../services/sendEmail.service');
 
 exports.createDistribuidor = async (req, res) => {
   try {
@@ -33,9 +34,43 @@ exports.getDistribuidorById = async (req, res) => {
 exports.updateDistribuidorById = async (req, res) => {
   try {
     const id = req.params.id;
+    console.log("id",id);
     const payload = req.body;
+    console.log("payload",payload);
     const distribuidor = await Distribuidor.update(payload, { where: { id_distribuidor: id } });
+    
+    if (payload.id_estadosolicitud) {
+
+      const distribuidorData = await Distribuidor.findOne({ where: { id_distribuidor: id } });
+      console.log("distribuidor",distribuidorData);
+      console.log("correo",distribuidorData.email);
+      let subject = '';
+      let text = '';
+
+      switch (payload.id_estadosolicitud) {
+        case 3: // Aprobada
+          subject = 'Solicitud de Distribuidor Aprobada';
+          text = 'Felicidades, su solicitud para ser distribuidor ha sido aprobada. Bienvenido, ya es parte de nosotros.';
+          break;
+        case 4: // Rechazada
+          subject = 'Solicitud de Distribuidor Rechazada';
+          text = 'Lamentamos informarle que su solicitud para ser distribuidor ha sido rechazada.';
+          break;
+        case 5: // Más información requerida
+          subject = 'Más Información Requerida para su Solicitud de Distribuidor';
+          text = 'Necesitamos más información para procesar su solicitud para ser distribuidor. Por favor, contáctenos.';
+          break;
+        default:
+          subject = 'Actualización de Estado de Solicitud de Distribuidor';
+          text = 'El estado de su solicitud para ser distribuidor ha sido actualizado.';
+          break;
+      }
+
+      sendEmail(distribuidorData.email, subject, text);
+    }
+
     res.status(200).json(distribuidor);
+
   } catch (error) {
     res.status({ error: error.message });
   }
