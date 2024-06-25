@@ -61,6 +61,10 @@ const Distribuidor = sequelize.define('Distribuidor', {
   password: {
     type:  DataTypes.STRING,
     allowNull: true
+  },
+  disponibilidad: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
 }, {
   tableName: 'Distribuidor',

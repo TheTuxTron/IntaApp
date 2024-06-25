@@ -3,6 +3,7 @@ const Parroquia = require('../models/Parroquia');
 exports.createParroquia = async (req, res) => {
   try {
     const newParroquia = await Parroquia.create(req.body);
+    console.log(req.body);
     res.status(201).json(newParroquia);
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -2,7 +2,29 @@ const Pedido = require('../models/Pedido');
 
 exports.createPedido = async (req, res) => {
   try {
-    const newPedido = await Pedido.create(req.body);
+    const { id_cliente, ubicacion, detalles } = req.body;
+
+    const newPedido = await Pedido.create({
+      id_cliente,
+      id_estadopedido: 1, // Estado inicial del pedido (Pendiente)
+      fecha: new Date(),
+      ubicacion
+    });
+
+    for (const detalle of detalles) {
+      await DetallePedido.create({
+        id_pedido: newPedido.id_pedido,
+        id_producto: detalle.producto.id_producto,
+        cantidad: detalle.cantidad,
+        total: detalle.cantidad * detalle.producto.precio
+      });
+
+      // Actualizar stock del producto
+      const producto = await Producto.findByPk(detalle.producto.id_producto);
+      producto.stock -= detalle.cantidad;
+      await producto.save();
+    }
+
     res.status(201).json(newPedido);
   } catch (error) {
     res.status(500).json({ error: error.message });
