@@ -20,6 +20,7 @@ const presentacionRoutes = require('./routes/presentacionRoutes');
 const productoRoutes = require('./routes/productoRoutes');
 const rutaRoutes = require('./routes/rutaRoutes');
 const authRoutes = require('./routes/authRoutes');
+const productoDistribuidorRoutes = require('./routes/productoDistribuidorRoutes');
 
 class Server {
   constructor() {
@@ -71,6 +72,7 @@ class Server {
     this.app.use('/api/producto', productoRoutes);
     this.app.use('/api/ruta', rutaRoutes);
     this.app.use('/api/auth', authRoutes);
+    this.app.use('/api/productodistribuidor', productoDistribuidorRoutes);
     // Añadir otras rutas...
   }
 

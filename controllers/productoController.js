@@ -1,6 +1,6 @@
 const Producto = require('../models/Producto');
 const Presentacion= require('../models/Presentacion');
-const Distribuidor = require('../models/Distribuidor');
+//const Distribuidor = require('../models/Distribuidor');
 
 exports.createProducto = async (req, res) => {
   try {
@@ -15,8 +15,8 @@ exports.getAllProductos = async (req, res) => {
   try {
     const productos = await Producto.findAll({
       include: [
-        { model: Presentacion, as: 'Presentacion', attributes: ['nombre', 'precio'] },
-        { model: Distribuidor, as: 'Distribuidor', attributes: ['nombre'] }
+        { model: Presentacion, as: 'Presentacion', attributes: ['nombre', 'precio'] }
+        //{ model: Distribuidor, as: 'Distribuidor', attributes: ['nombre'] }
       ]
     });
     
@@ -24,7 +24,7 @@ exports.getAllProductos = async (req, res) => {
       ...producto.toJSON(),
       presentacionNombre: producto.Presentacion ? producto.Presentacion.nombre : 'N/A',
       precio: producto.Presentacion ? producto.Presentacion.precio : 'N/A',
-      distribuidorNombre: producto.Distribuidor ? producto.Distribuidor.nombre: 'N/A'
+      //distribuidorNombre: producto.Distribuidor ? producto.Distribuidor.nombre: 'N/A'
     }));
     res.status(200).json(productosConPresentacion);
     //res.status(200).json(productosConDistribuidor);

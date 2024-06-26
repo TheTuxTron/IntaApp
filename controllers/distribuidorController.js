@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const Distribuidor = require('../models/Distribuidor');
 const sendEmail = require('../services/sendEmail.service');
+const sequelize = require('../config/database');
+const { Op } = require('sequelize');
 
 exports.createDistribuidor = async (req, res) => {
   try {
@@ -87,12 +89,22 @@ exports.deleteDistribuidorById = async (req, res) => {
 
 exports.getDistribuidoresDisponibles = async (req, res) => {
   try {
+    const pedido = req.body;
+    console.log("pedido",req.body);
+
+
+
     const distribuidores = await Distribuidor.findAll({
+      where: { estado: 'libre' },
       include: [{
         model: Producto,
-        where: { stock: { [Op.gt]: 0 } }
+        where: {
+          id: pedido.detalles.map(detalle => detalle.producto.id),
+          stock: { [Op.gte]: pedido.detalles.map(detalle => detalle.cantidad) }
+        }
       }]
     });
+    console.log("distribuidores",distribuidores);
     res.status(200).json(distribuidores);
   } catch (error) {
     res.status(500).json({ error: error.message });
