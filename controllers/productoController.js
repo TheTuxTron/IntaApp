@@ -1,3 +1,5 @@
+const { Sequelize } = require('sequelize');
+const sequelize = require('../config/database');
 const Producto = require('../models/Producto');
 const Presentacion= require('../models/Presentacion');
 //const Distribuidor = require('../models/Distribuidor');
@@ -60,6 +62,57 @@ exports.deleteProductoById = async (req, res) => {
     const id = req.params.id;
     await Producto.destroy({ where: { id_producto: id } });
     res.status(200).json({ message: 'Producto deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.obtenerPresentacionPorProducto = async (req, res) => {
+  try {
+    const id_producto = req.params.id_producto;
+
+    // Consulta SQL cruda
+    const result = await sequelize.query(
+      `SELECT "Presentacion".nombre, "Presentacion".precio 
+       FROM "Producto"
+       INNER JOIN "Presentacion" ON "Producto".id_presentacion = "Presentacion".id_presentacion
+       WHERE "Producto".id_producto = :id_producto`,
+      {
+        replacements: { id_producto: id_producto },
+        type: Sequelize.QueryTypes.SELECT
+      }
+    );
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: 'Producto no encontrado' });
+    }
+
+    res.status(200).json(result[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.obtenerPresentacionesPorNombreProducto = async (req, res) => {
+  try {
+    const nombre_producto = req.params.nombre_producto;
+
+    const result = await sequelize.query(
+      `SELECT "Presentacion".id_presentacion, "Presentacion".nombre, "Presentacion".precio 
+       FROM "Presentacion"
+       INNER JOIN "Producto" ON "Producto".id_presentacion = "Presentacion".id_presentacion
+       WHERE "Producto".nombre = :nombre_producto`,
+      {
+        replacements: { nombre_producto: nombre_producto },
+        type: Sequelize.QueryTypes.SELECT
+      }
+    );
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: 'Presentaciones no encontradas para el producto' });
+    }
+
+    res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
