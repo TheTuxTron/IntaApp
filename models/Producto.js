@@ -2,7 +2,8 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Admin = require('./Admin');
 //const Distribuidor = require('./Distribuidor');
-const Presentacion = require('./Presentacion');
+//const Presentacion = require('./Presentacion');
+//const ProductoPresentacion = require('./ProductoPresentacion');
 
 const Producto = sequelize.define('Producto', {
   id_producto: {
@@ -25,7 +26,7 @@ const Producto = sequelize.define('Producto', {
       model: Distribuidor,
       key: 'id_distribuidor'
     }
-  },*/
+  },*//*
   id_presentacion: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -33,7 +34,7 @@ const Producto = sequelize.define('Producto', {
       model: Presentacion,
       key: 'id_presentacion'
     }
-  },
+  },*/
   nombre: {
     type: DataTypes.STRING,
     allowNull: true
@@ -53,6 +54,7 @@ const Producto = sequelize.define('Producto', {
 
 Producto.belongsTo(Admin, { foreignKey: 'id_admin' });
 //Producto.belongsTo(Distribuidor, { foreignKey: 'id_distribuidor' });
-Producto.belongsTo(Presentacion, { foreignKey: 'id_presentacion' });
+//Producto.belongsTo(Presentacion,   { foreignKey: 'id_presentacion' });
+//Producto.hasMany(ProductoPresentacion, { foreignKey: 'id_producto' }); 
 
 module.exports = Producto;

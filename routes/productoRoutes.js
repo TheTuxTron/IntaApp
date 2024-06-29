@@ -7,8 +7,7 @@ router.get('/', productoController.getAllProductos);
 router.get('/:id', productoController.getProductoById);
 router.put('/:id', productoController.updateProductoById);
 router.delete('/:id', productoController.deleteProductoById);
-router.get('/:id_producto/presentacion', productoController.obtenerPresentacionPorProducto);
-router.get('/:nombre_producto/presentaciones', productoController.obtenerPresentacionesPorNombreProducto);
-
+router.get('/nombre/:nombre', productoController.verificarProductoPorNombre);
+router.get('/:id/presentaciones', productoController.getPresentacionesPorProducto);
 
 module.exports = router;

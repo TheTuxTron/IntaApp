@@ -1,6 +1,7 @@
 const { Sequelize } = require('sequelize');
 const sequelize = require('../config/database');
 const Producto = require('../models/Producto');
+const ProductoPresentacion  = require('../models/ProductoPresentacion');
 const Presentacion= require('../models/Presentacion');
 //const Distribuidor = require('../models/Distribuidor');
 
@@ -15,21 +16,8 @@ exports.createProducto = async (req, res) => {
 
 exports.getAllProductos = async (req, res) => {
   try {
-    const productos = await Producto.findAll({
-      include: [
-        { model: Presentacion, as: 'Presentacion', attributes: ['nombre', 'precio'] }
-        //{ model: Distribuidor, as: 'Distribuidor', attributes: ['nombre'] }
-      ]
-    });
-    
-    const productosConPresentacion = productos.map(producto => ({
-      ...producto.toJSON(),
-      presentacionNombre: producto.Presentacion ? producto.Presentacion.nombre : 'N/A',
-      precio: producto.Presentacion ? producto.Presentacion.precio : 'N/A',
-      //distribuidorNombre: producto.Distribuidor ? producto.Distribuidor.nombre: 'N/A'
-    }));
-    res.status(200).json(productosConPresentacion);
-    //res.status(200).json(productosConDistribuidor);
+    const productos = await Producto.findAll();
+    res.status(200).json(productos);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -67,53 +55,41 @@ exports.deleteProductoById = async (req, res) => {
   }
 };
 
-exports.obtenerPresentacionPorProducto = async (req, res) => {
+exports.verificarProductoPorNombre = async (req, res) => {
   try {
-    const id_producto = req.params.id_producto;
-
-    // Consulta SQL cruda
-    const result = await sequelize.query(
-      `SELECT "Presentacion".nombre, "Presentacion".precio 
-       FROM "Producto"
-       INNER JOIN "Presentacion" ON "Producto".id_presentacion = "Presentacion".id_presentacion
-       WHERE "Producto".id_producto = :id_producto`,
-      {
-        replacements: { id_producto: id_producto },
-        type: Sequelize.QueryTypes.SELECT
-      }
-    );
-
-    if (result.length === 0) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
-    }
-
-    res.status(200).json(result[0]);
+    const producto = await Producto.findOne({ where: { nombre: req.params.nombre } });
+    res.json(producto);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-exports.obtenerPresentacionesPorNombreProducto = async (req, res) => {
+exports.getAllProductosConPresentaciones = async (req, res) => {
   try {
-    const nombre_producto = req.params.nombre_producto;
-
-    const result = await sequelize.query(
-      `SELECT "Presentacion".id_presentacion, "Presentacion".nombre, "Presentacion".precio 
-       FROM "Presentacion"
-       INNER JOIN "Producto" ON "Producto".id_presentacion = "Presentacion".id_presentacion
-       WHERE "Producto".nombre = :nombre_producto`,
-      {
-        replacements: { nombre_producto: nombre_producto },
-        type: Sequelize.QueryTypes.SELECT
-      }
-    );
-
-    if (result.length === 0) {
-      return res.status(404).json({ error: 'Presentaciones no encontradas para el producto' });
-    }
-
-    res.status(200).json(result);
+    const productos = await Producto.findAll({
+      include: [
+        {
+          model: ProductoPresentacion,
+          include: [Presentacion]
+        }
+      ]
+    });
+    res.status(200).json(productos);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getPresentacionesPorProducto = async (req, res) => {
+  try {
+    const id_producto = req.params.id;
+    const presentaciones = await ProductoPresentacion.findAll({
+      where: { id_producto },
+      include: [Presentacion]
+    });
+    res.status(200).json(presentaciones);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+

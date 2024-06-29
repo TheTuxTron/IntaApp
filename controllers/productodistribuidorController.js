@@ -2,6 +2,7 @@ const ProductoDistribuidor = require('../models/ProductoDistribuidor');
 
 exports.createProductoDistribuidor = async (req, res) => {
   try {
+    console.log(req.body);
     const newProductoDsitribuidor = await ProductoDistribuidor.create(req.body);
     res.status(201).json(newProductoDsitribuidor);
   } catch (error) {
