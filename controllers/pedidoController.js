@@ -203,12 +203,68 @@ exports.getPedidosPendientes = async (req, res) => {
   }
 };
 */
+
+async function reasignarPedido(id_pedido, id_cliente) {
+  try {
+    // Obtener detalles del pedido
+    const detallesPedido = await DetallePedido.findAll({ where: { id_pedido } });
+
+    for (const detalle of detallesPedido) {
+      const productoPresentacion = await ProductoPresentacion.findByPk(detalle.id_productopresentacion);
+
+      // Buscar otro distribuidor con el producto en stock
+      const nuevoDistribuidor = await ProductoDistribuidor.findOne({
+        where: {
+          id_productopresentacion: productoPresentacion.id_productopresentacion,
+          stock: { [Op.gt]: 0 },
+          id_distribuidor: { [Op.ne]: detalle.id_distribuidor } // Excluir el distribuidor original
+        }
+      });
+
+      if (nuevoDistribuidor) {
+        // Actualizar el detalle del pedido con el nuevo distribuidor
+        detalle.id_productodistribuidor = nuevoDistribuidor.id_productodistribuidor;
+        await detalle.save();
+
+        // Actualizar el stock del nuevo distribuidor
+        nuevoDistribuidor.stock -= detalle.cantidad;
+        await nuevoDistribuidor.save();
+      } else {
+        // Si no se encuentra un nuevo distribuidor, se notifica al cliente
+        await notificarCliente(id_cliente, 'No se encontró otro distribuidor con el producto en stock');
+        throw new Error('No se encontró otro distribuidor con el producto en stock');
+      }
+    }
+
+    // Actualizar el estado del pedido a "Reasignado"
+    await Pedido.update({ id_estadopedido: 4 }, { where: { id_pedido } }); // 4: Reasignado
+
+    // Notificar al cliente sobre la reasignación exitosa
+    await notificarCliente(id_cliente, 'Tu pedido ha sido reasignado a otro distribuidor');
+  } catch (error) {
+    console.error('Error al reasignar el pedido:', error);
+  }
+}
+
+
+async function notificarCliente(id_cliente, mensaje) {
+  // Implementar la lógica de notificación, ya sea por correo electrónico o en la interfaz de usuario
+  console.log(`Notificación al cliente ${id_cliente}: ${mensaje}`);
+}
+
+
+
 exports.updateEstadoPedido = async (req, res) => {
   const { id_pedido } = req.params;
-  const { id_estadopedido } = req.body;
+  const { id_estadopedido, id_cliente } = req.body;
 
   try {
     await Pedido.update({ id_estadopedido }, { where: { id_pedido } });
+
+    if (id_estadopedido === 3) { // Rechazado
+      await reasignarPedido(id_pedido, id_cliente);
+    }
+
     res.status(200).json({ message: 'Estado del pedido actualizado' });
   } catch (error) {
     res.status(500).json({ error: error.message });
