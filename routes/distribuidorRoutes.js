@@ -7,6 +7,6 @@ router.get('/', distribuidorController.getAllDistribuidores);
 router.get('/:id', distribuidorController.getDistribuidorById);
 router.put('/:id', distribuidorController.updateDistribuidorById);
 router.delete('/:id', distribuidorController.deleteDistribuidorById);
-router.post('/disponibles', distribuidorController.getDistribuidoresDisponibles);
+router.post('/disponibles', distribuidorController.getDistribuidoresConStock);
 
 module.exports = router;

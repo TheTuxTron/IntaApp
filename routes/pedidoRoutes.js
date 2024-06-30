@@ -8,4 +8,7 @@ router.get('/:id', pedidoController.getPedidoById);
 router.put('/:id', pedidoController.updatePedidoById);
 router.delete('/:id', pedidoController.deletePedidoById);
 
+router.get('/pendientes/:id_distribuidor', pedidoController.getPedidosPendientes);
+router.put('/:id_pedido/estado', pedidoController.updateEstadoPedido);
+
 module.exports = router;

@@ -3,6 +3,7 @@ const Distribuidor = require('../models/Distribuidor');
 const sendEmail = require('../services/sendEmail.service');
 const sequelize = require('../config/database');
 const { Op } = require('sequelize');
+const { QueryTypes } = require('sequelize'); // Asegúrate de importar QueryTypes
 
 exports.createDistribuidor = async (req, res) => {
   try {
@@ -89,24 +90,59 @@ exports.deleteDistribuidorById = async (req, res) => {
 
 exports.getDistribuidoresDisponibles = async (req, res) => {
   try {
-    const pedido = req.body;
-    console.log("pedido",req.body);
+    const pedidoDetalles = req.body; // Detalles del pedido
 
+    // Crear una subconsulta para obtener los distribuidores con suficiente stock para cada detalle del pedido
+    const subQueries = pedidoDetalles.map(detalle => `
+      SELECT pd.id_distribuidor
+      FROM ProductoDistribuidor pd
+      WHERE pd.id_productopresentacion = ${detalle.presentacion.id_presentacion}
+      AND pd.stock >= ${detalle.cantidad}
+    `);
 
+    // Unir las subconsultas en una consulta principal
+    const query = `
+      SELECT d.*
+      FROM Distribuidor d
+      WHERE d.disponibilidad = 'Libre'
+      AND d.id_distribuidor IN (${subQueries.join(' INTERSECT ')})
+    `;
 
-    const distribuidores = await Distribuidor.findAll({
-      where: { estado: 'libre' },
-      include: [{
-        model: Producto,
-        where: {
-          id: pedido.detalles.map(detalle => detalle.producto.id),
-          stock: { [Op.gte]: pedido.detalles.map(detalle => detalle.cantidad) }
-        }
-      }]
-    });
-    console.log("distribuidores",distribuidores);
-    res.status(200).json(distribuidores);
+    // Ejecutar la consulta
+    const [results, metadata] = await sequelize.query(query);
+
+    res.status(200).json(results);
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getDistribuidoresConStock = async (req, res) => {
+  try {
+    const pedidoDetalles = req.body; // Detalles del pedido
+
+    // Crear una subconsulta para obtener los distribuidores con suficiente stock para cada detalle del pedido
+    const subQueries = pedidoDetalles.map(detalle => `
+      SELECT pd.id_distribuidor
+      FROM "ProductoDistribuidor" pd
+      WHERE pd.id_productopresentacion = ${detalle.presentacion.id_presentacion}
+      AND pd.stock >= ${detalle.cantidad}
+    `);
+
+    // Unir las subconsultas en una consulta principal
+    const query = `
+      SELECT d.*
+      FROM "Distribuidor" d
+      WHERE d.disponibilidad = 'Libre'
+      AND d.id_distribuidor IN (${subQueries.join(' INTERSECT ')})
+    `;
+
+    // Ejecutar la consulta
+    const results = await sequelize.query(query, { type: QueryTypes.SELECT });
+
+    res.status(200).json(results);
+  } catch (error) {
+    console.error('Error:', error);
     res.status(500).json({ error: error.message });
   }
 };
