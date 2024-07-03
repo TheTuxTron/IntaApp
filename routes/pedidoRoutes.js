@@ -9,6 +9,21 @@ router.put('/:id', pedidoController.updatePedidoById);
 router.delete('/:id', pedidoController.deletePedidoById);
 
 router.get('/pendientes/:id_distribuidor', pedidoController.getPedidosPendientes);
-router.put('/:id_pedido/estado', pedidoController.updateEstadoPedido);
+router.get('/en_camino/:id_distribuidor', pedidoController.getPedidosEnCamino);
+router.get('/entregados/:id_distribuidor', pedidoController.getPedidosEntregados);
+
+router.post('/pagar/:id_pedido', pedidoController.pagarPedido);
+
+
+router.put('/finalizar/:id_pedido', pedidoController.finalizarPedido);
+
+
+
+router.put('/:id_pedido', pedidoController.updateEstadoPedido);
+
+router.get('/cliente/:id_cliente', pedidoController.getPedidosCliente);
+router.post('/reasignar/:id_pedido', pedidoController.reasignarDistribuidor);
+
+router.put('/:id_pedido/distribuidor', pedidoController.updateDistribuidorPedido);//actualizar el pedido con otro distribuidor
 
 module.exports = router;

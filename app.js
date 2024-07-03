@@ -21,7 +21,9 @@ const productoRoutes = require('./routes/productoRoutes');
 const rutaRoutes = require('./routes/rutaRoutes');
 const authRoutes = require('./routes/authRoutes');
 const productoDistribuidorRoutes = require('./routes/productoDistribuidorRoutes');
-const productoPresentacionRoutes= require('./routes/productoPresentacionRoutes')
+const productoPresentacionRoutes = require('./routes/productoPresentacionRoutes')
+const paymentRoutes = require('./routes/paymentRoutes');
+
 
 class Server {
   constructor() {
@@ -37,7 +39,7 @@ class Server {
     this.app.use(cors({
       origin: function (origin, callback) {
         const allowedOrigins = [
-          'http://localhost:4200', 
+          'http://localhost:4200',
           // Agregar otros orígenes permitidos aquí
         ];
 
@@ -75,6 +77,7 @@ class Server {
     this.app.use('/api/auth', authRoutes);
     this.app.use('/api/productodistribuidor', productoDistribuidorRoutes);
     this.app.use('/api/productopresentacion', productoPresentacionRoutes);
+    this.app.use('/api/payments', paymentRoutes);
     // Añadir otras rutas...
   }
 

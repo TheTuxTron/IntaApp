@@ -59,7 +59,7 @@ const Distribuidor = sequelize.define('Distribuidor', {
     allowNull: true
   },
   password: {
-    type:  DataTypes.STRING,
+    type: DataTypes.STRING,
     allowNull: true
   },
   disponibilidad: {

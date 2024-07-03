@@ -8,4 +8,6 @@ router.get('/:id', clienteController.getClienteById);
 router.put('/:id', clienteController.updateClienteById);
 router.delete('/:id', clienteController.deleteClienteById);
 
+router.get('/check-username/:username', clienteController.checkUsername);
+
 module.exports = router;
