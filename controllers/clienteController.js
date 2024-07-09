@@ -5,6 +5,19 @@ exports.createCliente = async (req, res) => {
   try {
     const { id_barrio, cedula, nombre, apellido, direccion, telefono, email, username, password } = req.body;
     
+     // Verificar si la cédula ya está registrada
+     const existingCliente = await Cliente.findOne({ where: { cedula } });
+     if (existingCliente) {
+       return res.status(400).json({ error: 'La cédula ya está registrada' });
+     }
+
+     // Verificar si el nombre de usuario ya está registrado
+    const existingUsername = await Cliente.findOne({ where: { username } });
+    if (existingUsername) {
+      return res.status(400).json({ error: 'El nombre de usuario ya está registrado' });
+    }
+ 
+    
     // Encriptar la contraseña antes de guardarla
     const hashedPassword = await bcrypt.hash(password, 10);
 
