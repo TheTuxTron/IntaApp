@@ -11,7 +11,7 @@ router.post('/disponibles', distribuidorController.getDistribuidoresConStock);
 router.post('/disponiblesR', distribuidorController.getDistribuidoresConStockReasignar);
 router.post('/combinados', distribuidorController.getDistribuidoresCombinados)
 
-router.post('/location', distribuidorController.updateLocationDistribuidor);
+router.get('/location', distribuidorController.getDistributorLocation);
 
 
 module.exports = router;

@@ -10,4 +10,6 @@ router.delete('/:id', clienteController.deleteClienteById);
 
 router.get('/check-username/:username', clienteController.checkUsername);
 
+router.get('/location', clienteController.getClientLocation);
+
 module.exports = router;

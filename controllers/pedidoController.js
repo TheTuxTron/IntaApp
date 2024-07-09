@@ -18,7 +18,7 @@ exports.createPedido = async (req, res) => {
       ubicacion,
       id_distribuidor
     });
-
+    console.log("ubicacion:", req.body);
     for (const detalle of detalles) {
       console.log("Detalles recibidos:", detalle);
 
@@ -207,7 +207,7 @@ exports.getPedidosPendientes = async (req, res) => {
   console.log("distribuidor", req.params);
   try {
     const pedidos = await sequelize.query(
-      `SELECT DISTINCT p.id_pedido, p.id_estadopedido, p.id_cliente, p.fecha, p.ubicacion
+      `SELECT DISTINCT p.id_pedido, p.id_estadopedido, p.id_cliente, p.fecha, p.ubicacion, c.nombre
 FROM "Pedido" p
 JOIN (
   SELECT dp.id_pedido
@@ -215,6 +215,7 @@ JOIN (
   JOIN "ProductoDistribuidor" pd ON pd.id_productodistribuidor = dp.id_productodistribuidor
   WHERE pd.id_distribuidor = :id_distribuidor
 ) subquery ON subquery.id_pedido = p.id_pedido
+JOIN "Cliente" c ON c.id_cliente = p.id_cliente
 WHERE p.id_estadopedido = 1;`, // Estado 'Pendiente'
       {
         replacements: { id_distribuidor },
@@ -505,7 +506,7 @@ exports.getPedidosEnCamino = async (req, res) => {
 
   try {
     const pedidos = await sequelize.query(
-      `SELECT DISTINCT p.id_pedido, p.id_estadopedido, p.id_cliente, p.fecha, p.ubicacion
+      `SELECT DISTINCT p.id_pedido, p.id_estadopedido, p.id_cliente, p.fecha, p.ubicacion, c.nombre
       FROM "Pedido" p
       JOIN (
         SELECT dp.id_pedido
@@ -513,6 +514,7 @@ exports.getPedidosEnCamino = async (req, res) => {
         JOIN "ProductoDistribuidor" pd ON pd.id_productodistribuidor = dp.id_productodistribuidor
         WHERE pd.id_distribuidor = :id_distribuidor
       ) subquery ON subquery.id_pedido = p.id_pedido
+       JOIN "Cliente" c ON c.id_cliente = p.id_cliente
       WHERE p.id_estadopedido = 2;`, // Estado 'En camino'
       {
         replacements: { id_distribuidor },
@@ -532,7 +534,7 @@ exports.getPedidosEntregados = async (req, res) => {
 
   try {
     const pedidos = await sequelize.query(
-      `SELECT DISTINCT p.id_pedido, p.id_estadopedido, p.id_cliente, p.fecha, p.ubicacion
+      `SELECT DISTINCT p.id_pedido, p.id_estadopedido, p.id_cliente, p.fecha, p.ubicacion, c.nombre
       FROM "Pedido" p
       JOIN (
         SELECT dp.id_pedido
@@ -540,6 +542,7 @@ exports.getPedidosEntregados = async (req, res) => {
         JOIN "ProductoDistribuidor" pd ON pd.id_productodistribuidor = dp.id_productodistribuidor
         WHERE pd.id_distribuidor = :id_distribuidor
       ) subquery ON subquery.id_pedido = p.id_pedido
+       JOIN "Cliente" c ON c.id_cliente = p.id_cliente
       WHERE p.id_estadopedido = 3 or p.id_estadopedido = 8;`, // Estado 'Entregado'
       {
         replacements: { id_distribuidor },

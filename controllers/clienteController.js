@@ -80,3 +80,21 @@ exports.checkUsername = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getClientLocation = (req, res) => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        res.status(200).json({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      (error) => {
+        res.status(500).json({ error: "Geolocation error: " + error.message });
+      }
+    );
+  } else {
+    res.status(500).json({ error: "Geolocation not supported by this browser." });
+  }
+};

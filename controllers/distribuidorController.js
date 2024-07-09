@@ -242,22 +242,22 @@ exports.getDistribuidoresCombinados = async (req, res) => {
 };
 
 
-exports.updateLocationDistribuidor = async (req, res) => {
-  let token;
-
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    try {
-      token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = await User.findById(decoded.id).select('-password');
-      next();
-    } catch (error) {
-      console.error(error);
-      res.status(401).json({ message: 'Not authorized, token failed' });
-    }
-  }
-
-  if (!token) {
-    res.status(401).json({ message: 'Not authorized, no token' });
+exports.getDistributorLocation = (req, res) => {
+  // Simulación de obtención de ubicación del distribuidor
+  // En una aplicación real, podrías utilizar una IP geolocation API u obtener la ubicación del navegador
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        res.status(200).json({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      (error) => {
+        res.status(500).json({ error: "Geolocation error: " + error.message });
+      }
+    );
+  } else {
+    res.status(500).json({ error: "Geolocation not supported by this browser." });
   }
 };
