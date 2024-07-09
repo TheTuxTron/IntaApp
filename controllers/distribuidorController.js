@@ -182,13 +182,22 @@ exports.getDistribuidoresConStockReasignar = async (req, res) => {
 exports.getDistribuidoresCombinados = async (req, res) => {
   try {
     const pedidoDetalles = req.body; // Detalles del pedido
-    console.log(req.body);
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
     const combinaciones = [];
 
     // Iterar sobre cada detalle del pedido
     for (const detalle of pedidoDetalles) {
+      console.log('Processing detail:', JSON.stringify(detalle, null, 2));
+
+      // Validar que detalle.presentacion y detalle.cantidad existan y sean válidos
+      if (!detalle.presentacion || !detalle.cantidad) {
+        return res.status(400).json({ error: 'Datos faltantes en los detalles del pedido' });
+      }
+
       const id_presentacion = parseInt(detalle.presentacion.id_presentacion, 10);
       const cantidad = parseInt(detalle.cantidad, 10);
+
+      console.log('id_presentacion:', id_presentacion, 'cantidad:', cantidad);
 
       // Validar que id_presentacion y cantidad sean números válidos
       if (isNaN(id_presentacion) || isNaN(cantidad)) {
@@ -205,11 +214,15 @@ exports.getDistribuidoresCombinados = async (req, res) => {
         ORDER BY pd.stock DESC
       `;
 
+      console.log('Executing query with id_presentacion:', id_presentacion);
+
       // Ejecutar la consulta con parámetros
       const distribuidores = await sequelize.query(query, {
         type: QueryTypes.SELECT,
         replacements: { id_presentacion }
       });
+
+      console.log('Distribuidores encontrados:', JSON.stringify(distribuidores, null, 2));
 
       let totalStock = 0;
       const distribuidoresSeleccionados = [];
@@ -240,6 +253,9 @@ exports.getDistribuidoresCombinados = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
 
 
 exports.getDistributorLocation = (req, res) => {
