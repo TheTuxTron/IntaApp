@@ -1,4 +1,6 @@
 const Barrio = require('../models/Barrio');
+const { Sequelize } = require('sequelize');
+const sequelize = require('../config/database');
 
 exports.createBarrio = async (req, res) => {
   try {
@@ -11,8 +13,18 @@ exports.createBarrio = async (req, res) => {
 
 exports.getAllBarrios = async (req, res) => {
   try {
-    const barrios = await Barrio.findAll();
-    res.status(200).json(barrios);
+    const [results, metadata] = await sequelize.query(`
+      SELECT 
+  "Barrio".id_barrio, 
+  "Barrio".nombre AS barrioNombre, 
+  "Barrio".descripcion, 
+  "Barrio".ubicacion, 
+  "Parroquia".nombre AS parroquiaNombre
+FROM "Barrio"
+INNER JOIN "Parroquia" ON "Barrio".id_parroquia = "Parroquia".id_parroquia;
+
+    `);
+    res.status(200).json(results);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

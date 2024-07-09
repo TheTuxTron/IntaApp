@@ -5,19 +5,6 @@ exports.createCliente = async (req, res) => {
   try {
     const { id_barrio, cedula, nombre, apellido, direccion, telefono, email, username, password } = req.body;
     
-     // Verificar si la cédula ya está registrada
-     const existingCliente = await Cliente.findOne({ where: { cedula } });
-     if (existingCliente) {
-       return res.status(400).json({ error: 'La cédula ya está registrada' });
-     }
-
-     // Verificar si el nombre de usuario ya está registrado
-    const existingUsername = await Cliente.findOne({ where: { username } });
-    if (existingUsername) {
-      return res.status(400).json({ error: 'El nombre de usuario ya está registrado' });
-    }
- 
-    
     // Encriptar la contraseña antes de guardarla
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -76,5 +63,38 @@ exports.deleteClienteById = async (req, res) => {
     res.status(200).json({ message: 'Cliente deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+exports.checkUsername = async (req, res) => {
+  try {
+    const { username } = req.params; // Obtener el username desde los parámetros de la solicitud
+    const cliente = await Cliente.findOne({ where: { username } });
+
+    if (cliente) {
+      res.status(200).json(true); // Devolver true si el username existe
+    } else {
+      res.status(200).json(false); // Devolver false si el username no existe
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getClientLocation = (req, res) => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        res.status(200).json({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      (error) => {
+        res.status(500).json({ error: "Geolocation error: " + error.message });
+      }
+    );
+  } else {
+    res.status(500).json({ error: "Geolocation not supported by this browser." });
   }
 };

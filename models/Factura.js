@@ -27,15 +27,15 @@ const Factura = sequelize.define('Factura', {
     allowNull: true
   },
   iva: {
-    type: DataTypes.DECIMAL,
+    type: DataTypes.FLOAT,
     allowNull: true
   },
   subtotal: {
-    type: DataTypes.DECIMAL,
+    type: DataTypes.FLOAT,
     allowNull: true
   },
   valortotal: {
-    type: DataTypes.DECIMAL,
+    type: DataTypes.FLOAT,
     allowNull: true
   },
   metodo_pago: {
@@ -45,10 +45,10 @@ const Factura = sequelize.define('Factura', {
       model: MetodoPagoEfectivo,
       key: 'id_pagoefectivo'
     },
-    references: {
-      model: MetodoPagoPaypal,
-      key: 'id_metodopago2'
-    }
+    // references: {
+    //   model: MetodoPagoPaypal,
+    //   key: 'id_metodopago2'
+    // }
   }
 }, {
   tableName: 'Factura',

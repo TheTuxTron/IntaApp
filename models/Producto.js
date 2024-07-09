@@ -1,8 +1,9 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Admin = require('./Admin');
-const Distribuidor = require('./Distribuidor');
-const Presentacion = require('./Presentacion');
+//const Distribuidor = require('./Distribuidor');
+//const Presentacion = require('./Presentacion');
+//const ProductoPresentacion = require('./ProductoPresentacion');
 
 const Producto = sequelize.define('Producto', {
   id_producto: {
@@ -17,7 +18,7 @@ const Producto = sequelize.define('Producto', {
       model: Admin,
       key: 'id_admin'
     }
-  },
+  },/*
   id_distribuidor: {
     type: DataTypes.INTEGER,
     allowNull: true,
@@ -25,7 +26,7 @@ const Producto = sequelize.define('Producto', {
       model: Distribuidor,
       key: 'id_distribuidor'
     }
-  },
+  },*//*
   id_presentacion: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -33,7 +34,7 @@ const Producto = sequelize.define('Producto', {
       model: Presentacion,
       key: 'id_presentacion'
     }
-  },
+  },*/
   nombre: {
     type: DataTypes.STRING,
     allowNull: true
@@ -41,18 +42,19 @@ const Producto = sequelize.define('Producto', {
   descripcion: {
     type: DataTypes.TEXT,
     allowNull: true
-  },
+  },/*
   stock: {
     type: DataTypes.INTEGER,
     allowNull: true
-  }
+  }*/
 }, {
   tableName: 'Producto',
   timestamps: false
 });
 
 Producto.belongsTo(Admin, { foreignKey: 'id_admin' });
-Producto.belongsTo(Distribuidor, { foreignKey: 'id_distribuidor' });
-Producto.belongsTo(Presentacion, { foreignKey: 'id_presentacion' });
+//Producto.belongsTo(Distribuidor, { foreignKey: 'id_distribuidor' });
+//Producto.belongsTo(Presentacion,   { foreignKey: 'id_presentacion' });
+//Producto.hasMany(ProductoPresentacion, { foreignKey: 'id_producto' }); 
 
 module.exports = Producto;

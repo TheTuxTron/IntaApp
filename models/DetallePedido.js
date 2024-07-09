@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const Producto = require('./Producto');
+const ProductoDistribuidor = require('./ProductoDistribuidor');
 const Pedido = require('./Pedido');
 
 const DetallePedido = sequelize.define('DetallePedido', {
@@ -9,12 +9,12 @@ const DetallePedido = sequelize.define('DetallePedido', {
     autoIncrement: true,
     primaryKey: true
   },
-  id_producto: {
+  id_productodistribuidor: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: Producto,
-      key: 'id_producto'
+      model: ProductoDistribuidor,
+      key: 'id_productodistribuidor'
     }
   },
   id_pedido: {
@@ -38,7 +38,7 @@ const DetallePedido = sequelize.define('DetallePedido', {
   timestamps: false
 });
 
-DetallePedido.belongsTo(Producto, { foreignKey: 'id_producto' });
+DetallePedido.belongsTo(ProductoDistribuidor, { foreignKey: 'id_productodistribuidor' });
 DetallePedido.belongsTo(Pedido, { foreignKey: 'id_pedido' });
 
 module.exports = DetallePedido;
