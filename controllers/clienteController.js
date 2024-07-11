@@ -81,6 +81,22 @@ exports.checkUsername = async (req, res) => {
   }
 };
 
+exports.checkCedula = async (req, res) => {
+  try {
+    const { cedula } = req.params; // Obtener la cédula desde los parámetros de la solicitud
+    const cliente = await Cliente.findOne({ where: { cedula } });
+
+    if (cliente) {
+      res.status(200).json(true); // Devolver true si la cédula existe
+    } else {
+      res.status(200).json(false); // Devolver false si la cédula no existe
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 exports.getClientLocation = (req, res) => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(

@@ -9,6 +9,7 @@ router.put('/:id', clienteController.updateClienteById);
 router.delete('/:id', clienteController.deleteClienteById);
 
 router.get('/check-username/:username', clienteController.checkUsername);
+router.get('/check-cedula/:cedula', clienteController.checkCedula);
 
 router.get('/location', clienteController.getClientLocation);
 
