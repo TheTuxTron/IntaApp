@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const Distribuidor = require('../models/Distribuidor');
+const Cliente = require('../models/Cliente');
 const sendEmail = require('../services/sendEmail.service');
 const sequelize = require('../config/database');
 const { Op } = require('sequelize');
@@ -36,45 +37,58 @@ exports.getDistribuidorById = async (req, res) => {
 exports.updateDistribuidorById = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log("id", id);
     const payload = req.body;
-    console.log("payload", payload);
     const distribuidor = await Distribuidor.update(payload, { where: { id_distribuidor: id } });
 
     if (payload.id_estadosolicitud) {
-
       const distribuidorData = await Distribuidor.findOne({ where: { id_distribuidor: id } });
-      console.log("distribuidor", distribuidorData);
-      console.log("correo", distribuidorData.email);
       let subject = '';
-      let text = '';
+      let mensaje = '';
+      let link = '';  // Aquí deberías agregar el enlace de inicio de sesión
+      let botonTexto = 'Iniciar Sesión';
 
       switch (payload.id_estadosolicitud) {
         case 3: // Aprobada
+          let username, password, hashedPassword;
+          do {
+            username = generateUsername();
+          } while (await isUsernameTaken(username));
+
+          password = generatePassword();
+          hashedPassword = await bcrypt.hash(password, 10);
+
+          await Distribuidor.update({ username, password: hashedPassword }, { where: { id_distribuidor: id } });
           subject = 'Solicitud de Distribuidor Aprobada';
-          text = 'Felicidades, su solicitud para ser distribuidor ha sido aprobada. Bienvenido, ya es parte de nosotros.';
+          mensaje = `Felicidades, su solicitud para ser distribuidor ha sido aprobada. 
+                      Sus credenciales son: 
+                      Username: ${username}
+                      Password: ${password}
+                      Bienvenido, ya es parte de nosotros.`;
+          link = 'http://tusitio.com/login';  // Cambia esto por el enlace real de inicio de sesión
           break;
         case 4: // Rechazada
           subject = 'Solicitud de Distribuidor Rechazada';
-          text = 'Lamentamos informarle que su solicitud para ser distribuidor ha sido rechazada.';
+          mensaje = 'Lamentamos informarle que su solicitud para ser distribuidor ha sido rechazada.';
+          link = 'http://tusitio.com/solicitar';  // Cambia esto por el enlace real para solicitar nuevamente
           break;
         case 5: // Más información requerida
           subject = 'Más Información Requerida para su Solicitud de Distribuidor';
-          text = 'Necesitamos más información para procesar su solicitud para ser distribuidor. Por favor, contáctenos.';
+          mensaje = 'Necesitamos más información para procesar su solicitud para ser distribuidor. Por favor, contáctenos.';
+          link = 'http://tusitio.com/contacto';  // Cambia esto por el enlace real de contacto
           break;
         default:
           subject = 'Actualización de Estado de Solicitud de Distribuidor';
-          text = 'El estado de su solicitud para ser distribuidor ha sido actualizado.';
+          mensaje = 'El estado de su solicitud para ser distribuidor ha sido actualizado.';
+          link = 'http://tusitio.com/estado-solicitud';  // Cambia esto por el enlace real para ver el estado de la solicitud
           break;
       }
 
-      sendEmail(distribuidorData.email, subject, text);
+      sendEmail(distribuidorData.email, subject, 'emailTemplate', { subject, mensaje, link, botonTexto });
     }
 
     res.status(200).json(distribuidor);
-
   } catch (error) {
-    res.status({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -148,7 +162,6 @@ exports.getDistribuidoresConStock = async (req, res) => {
   }
 };
 
-
 exports.getDistribuidoresConStockReasignar = async (req, res) => {
   try {
     const pedidoDetalles = req.body; // Detalles del pedido
@@ -184,6 +197,7 @@ exports.getDistribuidoresCombinados = async (req, res) => {
     const pedidoDetalles = req.body; // Detalles del pedido
     console.log('Request body:', JSON.stringify(req.body, null, 2));
     const combinaciones = [];
+    const distribuidoresSeleccionados = [];
 
     // Iterar sobre cada detalle del pedido
     for (const detalle of pedidoDetalles) {
@@ -225,7 +239,6 @@ exports.getDistribuidoresCombinados = async (req, res) => {
       console.log('Distribuidores encontrados:', JSON.stringify(distribuidores, null, 2));
 
       let totalStock = 0;
-      const distribuidoresSeleccionados = [];
 
       // Iterar sobre los distribuidores y acumular el stock hasta cumplir la cantidad requerida
       for (const distribuidor of distribuidores) {
@@ -238,23 +251,22 @@ exports.getDistribuidoresCombinados = async (req, res) => {
       if (totalStock < cantidad) {
         return res.status(200).json({
           mensaje: 'No hay suficientes distribuidores para cumplir con este pedido',
-          combinaciones: []
+          combinaciones: any
         });
       }
 
       // Agregar la combinación de distribuidores seleccionados a la lista de combinaciones
-      combinaciones.push(distribuidoresSeleccionados);
+      //combinaciones.push(distribuidoresSeleccionados);
     }
 
+    console.log('COMBINACIONES:', distribuidoresSeleccionados);
     // Devolver las combinaciones de distribuidores
-    res.status(200).json(combinaciones);
+    res.status(200).json(distribuidoresSeleccionados);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: error.message });
   }
 };
-
-
 
 
 
@@ -277,3 +289,27 @@ exports.getDistributorLocation = (req, res) => {
     res.status(500).json({ error: "Geolocation not supported by this browser." });
   }
 };
+
+function generateUsername(length = 8) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let username = '';
+  for (let i = 0; i < length; i++) {
+    username += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return username;
+}
+
+function generatePassword(length = 10) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+  let password = '';
+  for (let i = 0; i < length; i++) {
+    password += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return password;
+}
+
+async function isUsernameTaken(username) {
+  const distribuidor = await Distribuidor.findOne({ where: { username } });
+  const cliente = await Cliente.findOne({ where: { username } });
+  return distribuidor || cliente;
+}

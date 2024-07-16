@@ -25,6 +25,11 @@ const ProductoPresentacion = sequelize.define('ProductoPresentacion', {
       model: Presentacion,
       key: 'id_presentacion'
     }
+  },
+  imagen: {
+    type: DataTypes.STRING,
+    allowNull: false,
+
   }
 }, {
   tableName: 'ProductoPresentacion',

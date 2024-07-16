@@ -35,6 +35,8 @@ class Server {
   }
 
   middlewares() {
+    this.app.use(express.json({ limit: '50mb' }));
+    this.app.use(express.urlencoded({ limit: '50mb', extended: true }));
     this.app.use(express.json());
     this.app.use(cors({
       origin: function (origin, callback) {
@@ -80,6 +82,8 @@ class Server {
     this.app.use('/api/payments', paymentRoutes);
     // Añadir otras rutas...
   }
+
+
 
   listen() {
     this.app.listen(this.port, () => {
