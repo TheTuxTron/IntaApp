@@ -4,7 +4,7 @@ const distribuidorController = require('../controllers/distribuidorController');
 
 router.post('/', distribuidorController.createDistribuidor);
 router.get('/', distribuidorController.getAllDistribuidores);
-router.get('/:id', distribuidorController.getDistribuidorById);
+router.get('/info/:id', distribuidorController.getDistribuidorById);
 router.put('/:id', distribuidorController.updateDistribuidorById);
 router.delete('/:id', distribuidorController.deleteDistribuidorById);
 router.post('/disponibles', distribuidorController.getDistribuidoresConStock);

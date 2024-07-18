@@ -26,6 +26,7 @@ exports.createFactura = async (req, res) => {
       subtotal += parseFloat(detalle.total);
     });
 
+    subtotal = parseFloat(subtotal);
     const iva = subtotal * 0.12; // Suponiendo un 12% de IVA
     const valortotal = subtotal + iva;
 

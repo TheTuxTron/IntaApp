@@ -12,6 +12,7 @@ exports.createProductoPresentacion = async (req, res) => {
   }
 };
 
+
 exports.getAllProductoPresentaciones = async (req, res) => {
   try {
     const productoPresentaciones = await ProductoPresentacion.findAll();

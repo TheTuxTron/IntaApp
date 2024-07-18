@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
 const Cliente = require('../models/Cliente');
+const { Sequelize } = require('sequelize');
+const sequelize = require('../config/database');
 
 exports.createCliente = async (req, res) => {
   try {
@@ -112,5 +114,42 @@ exports.getClientLocation = (req, res) => {
     );
   } else {
     res.status(500).json({ error: "Geolocation not supported by this browser." });
+  }
+};
+
+exports.getFacturaByClienteId = async (req, res) => {
+  const { id_cliente } = req.params;
+
+  try {
+    const results = await sequelize.query(`
+      SELECT
+        f.id_factura,
+        f.fecha AS fechaFactura,
+        f.numfactura,
+        f.iva,
+        f.subtotal,
+        f.valortotal,
+        p.id_pedido,
+        p.fecha AS fechaPedido,
+        p.ubicacion,
+        c.id_cliente,
+        c.nombre AS nombreCliente,
+        c.direccion AS direccionCliente,
+        dp.id_detalle,
+        dp.cantidad,
+        dp.total AS totalDetalle
+      FROM "Factura" AS f
+      INNER JOIN "Pedido" AS p ON f.id_pedido = p.id_pedido
+      INNER JOIN "Cliente" AS c ON p.id_cliente = c.id_cliente
+      LEFT JOIN "DetallePedido" AS dp ON p.id_pedido = dp.id_pedido
+      WHERE c.id_cliente = :id_cliente;
+    `, {
+      replacements: { id_cliente: id_cliente },
+      type: sequelize.QueryTypes.SELECT
+    });
+    console.log(results)
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
