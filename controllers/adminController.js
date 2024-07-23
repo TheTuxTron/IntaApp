@@ -4,7 +4,7 @@ const Admin = require('../models/Admin');
 exports.createAdmin = async (req, res) => {
   try {
     const { nombre, apellido, direccion, telefono, email, username, password } = req.body;
-    
+
     // Encriptar la contraseña antes de guardarla
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -59,6 +59,19 @@ exports.deleteAdminById = async (req, res) => {
     const id = req.params.id;
     await Admin.destroy({ where: { id_admin: id } });
     res.status(200).json({ message: 'Admin deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getIva = async (req, res) => {
+  try {
+    const admin = await Admin.findOne();
+    if (admin) {
+      res.status(200).json({ iva: admin.iva });
+    } else {
+      res.status(404).json({ message: 'Admin not found' });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -21,7 +21,10 @@ exports.getAllPresentaciones = async (req, res) => {
 exports.getPresentacionById = async (req, res) => {
   try {
     const id = req.params.id;
-    const presentacion = await Presentacion.findOne({ where: { id_presentacion: id } });
+    const presentacion = await Presentacion.findOne(
+      {
+        where: { id_presentacion: id }
+      });
     res.status(200).json(presentacion);
   } catch (error) {
     res.status(500).json({ error: error.message });

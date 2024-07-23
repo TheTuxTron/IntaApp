@@ -34,6 +34,11 @@ const Admin = sequelize.define('Admin', {
   password: {
     type: DataTypes.STRING,
     allowNull: true
+  },
+  iva: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    //defaultValue: 0.12 // Valor por defecto del IVA
   }
 }, {
   tableName: 'Admin',

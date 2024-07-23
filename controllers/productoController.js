@@ -1,8 +1,8 @@
 const { Sequelize } = require('sequelize');
 const sequelize = require('../config/database');
 const Producto = require('../models/Producto');
-const ProductoPresentacion  = require('../models/ProductoPresentacion');
-const Presentacion= require('../models/Presentacion');
+const ProductoPresentacion = require('../models/ProductoPresentacion');
+const Presentacion = require('../models/Presentacion');
 //const Distribuidor = require('../models/Distribuidor');
 
 exports.createProducto = async (req, res) => {
@@ -70,7 +70,11 @@ exports.getAllProductosConPresentaciones = async (req, res) => {
       include: [
         {
           model: ProductoPresentacion,
-          include: [Presentacion]
+          include: [{
+            model: Presentacion,
+            attributes: ['id_presentacion', 'nombre', 'descripcion', 'precio']
+          }],
+          attributes: ['id_productopresentacion', 'id_producto', 'id_presentacion', 'imagen'] // Incluye la columna 'imagen'
         }
       ]
     });
@@ -85,11 +89,16 @@ exports.getPresentacionesPorProducto = async (req, res) => {
     const id_producto = req.params.id;
     const presentaciones = await ProductoPresentacion.findAll({
       where: { id_producto },
-      include: [Presentacion]
+      include: [{
+        model: Presentacion,
+        attributes: ['id_presentacion', 'nombre', 'descripcion', 'precio']
+      }],
+      attributes: ['id_productopresentacion', 'id_producto', 'id_presentacion', 'imagen'] // Incluye la columna 'imagen'
     });
     res.status(200).json(presentaciones);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 

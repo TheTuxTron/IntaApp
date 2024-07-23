@@ -55,7 +55,7 @@ exports.createPedido = async (req, res) => {
         id_pedido: newPedido.id_pedido,
         id_productodistribuidor: productoDistribuidor.id_productodistribuidor,
         cantidad: detalle.cantidad,
-        total: detalle.cantidad * productoDistribuidor.precio
+        total: detalle.cantidad * parseFloat(detalle.precio)
       });
 
       // // Actualizar stock del producto

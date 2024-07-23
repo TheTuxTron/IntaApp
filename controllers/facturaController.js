@@ -9,6 +9,7 @@ const Presentacion = require('../models/Presentacion');
 exports.createFactura = async (req, res) => {
   try {
     const idPedido = req.params.id;
+    console.log("iva", req.body);
     const pedido = await Pedido.findByPk(idPedido);
     const detalles = await DetallePedido.findAll({
       where: { id_pedido: idPedido },
@@ -25,10 +26,19 @@ exports.createFactura = async (req, res) => {
     detalles.forEach(detalle => {
       subtotal += parseFloat(detalle.total);
     });
+    // Suponiendo que req.body tiene el objeto pedido recibido
 
+
+    // Accediendo al valor de IVA
+    const iva1 = req.body.iva;
+
+    console.log("El valor de IVA es:", iva1);
     subtotal = parseFloat(subtotal);
-    const iva = subtotal * 0.12; // Suponiendo un 12% de IVA
+    console.log("subtotal", subtotal);
+    const iva = subtotal * iva1; // Suponiendo un 12% de IVA
+    console.log("iva", iva);
     const valortotal = subtotal + iva;
+    console.log("itotalva", valortotal);
 
     // Obtener la última factura
     const ultimaFactura = await Factura.findOne({

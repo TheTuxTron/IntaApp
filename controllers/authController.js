@@ -4,7 +4,7 @@ const Admin = require('../models/Admin');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { json } = require('sequelize');
-const cCliente=require('../controllers/clienteController');
+const cCliente = require('../controllers/clienteController');
 
 
 const secretKey = 'secret_key'; // Debe ser una clave segura y almacenada en un entorno seguro
@@ -52,8 +52,8 @@ exports.loginDistribuidor = async (req, res) => {
     }
 
     //const isMatch = await bcrypt.compare(password, user.password);
-   
-    if (password!=user.password) {
+
+    if (password != user.password) {
       return res.status(401).json({ error: 'Contraseña incorrecta' });
     }
 
@@ -98,3 +98,53 @@ exports.loginAdmin = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.recoverAccount = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const cliente = await Cliente.findOne({ where: { email } });
+
+    if (!cliente) {
+      return res.status(404).json({ error: 'Correo no registrado' });
+    }
+
+    const token = crypto.randomBytes(20).toString('hex');
+    cliente.resetPasswordToken = token;
+    cliente.resetPasswordExpires = Date.now() + 3600000; // 1 hora
+    await cliente.save();
+
+    const resetLink = `http://localhost:4200/reset-password/${token}`;
+    sendEmail(email, 'Recuperar Cuenta', 'recover', { resetLink });
+
+    res.status(200).json({ message: 'Correo enviado' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    const cliente = await Cliente.findOne({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: { [Op.gt]: Date.now() }
+      }
+    });
+
+    if (!cliente) {
+      return res.status(400).json({ error: 'Token inválido o expirado' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    cliente.password = hashedPassword;
+    cliente.resetPasswordToken = null;
+    cliente.resetPasswordExpires = null;
+    await cliente.save();
+
+    res.status(200).json({ message: 'Contraseña actualizada' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+

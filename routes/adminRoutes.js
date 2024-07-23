@@ -8,4 +8,6 @@ router.get('/info/:id', adminController.getAdminById);
 router.put('/:id', adminController.updateAdminById);
 router.delete('/:id', adminController.deleteAdminById);
 
+router.get('/iva', adminController.getIva); // Nueva ruta para obtener el IVA
+
 module.exports = router;
